@@ -1,5 +1,6 @@
 import cv2
 import mediapipe as mp
+from mediapipe.framework.formats.landmark_pb2 import NormalizedLandmarkList
 
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
@@ -58,6 +59,17 @@ with mp_hands.Hands(min_detection_confidence=0.5,
         image.flags.writeable = True
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         if results.multi_hand_landmarks:
+
+            hand_first = results.multi_hand_landmarks[0]
+            # hand_second = results.multi_hand_landmarks[1]
+            wrist_first = hand_first.landmark[0]
+            mcps_first = tuple(map(lambda i: hand_first.landmark[i], (5, 9, 13, 17)))
+            mcps_y = tuple(map(lambda mcp: mcp.y, mcps_first))
+            checkpoints = [wrist_first.y < mcp_y for mcp_y in mcps_y]
+            if False in checkpoints:
+                print(checkpoints)
+                print('손목터널증후군 주의!')
+
             for hand_landmarks in results.multi_hand_landmarks:
                 mp_drawing.draw_landmarks(
                     image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
