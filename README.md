@@ -1,4 +1,4 @@
-# preventing_carpal_tunnel_syndrome
+# carpal_tunnel_syndrome_preventor
 
 ## Stacks
 - MediaPipe
