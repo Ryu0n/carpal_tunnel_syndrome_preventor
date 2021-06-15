@@ -1,6 +1,5 @@
 import cv2
 import mediapipe as mp
-from mediapipe.framework.formats.landmark_pb2 import NormalizedLandmarkList
 
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
@@ -61,14 +60,18 @@ with mp_hands.Hands(min_detection_confidence=0.5,
         if results.multi_hand_landmarks:
 
             hand_first = results.multi_hand_landmarks[0]
-            # hand_second = results.multi_hand_landmarks[1]
-            wrist_first = hand_first.landmark[0]
-            mcps_first = tuple(map(lambda i: hand_first.landmark[i], (5, 9, 13, 17)))
+            wrist_first = hand_first.landmark[mp_hands.HandLandmark.WRIST]
+            mpcs = [mp_hands.HandLandmark.INDEX_FINGER_MCP,
+                    mp_hands.HandLandmark.MIDDLE_FINGER_MCP,
+                    mp_hands.HandLandmark.RING_FINGER_MCP,
+                    mp_hands.HandLandmark.PINKY_MCP]
+            mcps_first = tuple(map(lambda i: hand_first.landmark[i], mpcs))
             mcps_y = tuple(map(lambda mcp: mcp.y, mcps_first))
             checkpoints = [wrist_first.y < mcp_y for mcp_y in mcps_y]
             if False in checkpoints:
                 print(checkpoints)
-                print('손목터널증후군 주의!')
+                msg = '[WARNING] WRIST HAS A BREAKPOINT!'
+                cv2.putText(image, msg, (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1, cv2.LINE_AA)
 
             for hand_landmarks in results.multi_hand_landmarks:
                 mp_drawing.draw_landmarks(
